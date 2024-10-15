@@ -30,6 +30,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import os.path
+
 ua = UserAgent()
 # creating a fake random useragent
 headers = {
@@ -57,8 +59,25 @@ driver.get(url)
 # wait for browser to load content
 driver.implicitly_wait(5)
 
-# reads user given xlsx file
-superfunds = pd.read_excel('superfunds.xlsx')
+# sees if superfunds.xlsx exists
+if(os.path.isfile(os.path.dirname(os.path.abspath(__file__)) + '/superfunds.xlsx')):
+    superexists = True
+else:
+    superexists = False
+
+# if the superfunds.xlsx exists
+if(superexists):
+    # reads user given xlsx file
+    superfunds = pd.read_excel(os.path.dirname(os.path.abspath(__file__)) + '/superfunds.xlsx')
+
+    # find EPA ID, NAI, and NAI Status from xlsx sheet
+    id_list = superfunds.get("EPA ID").tolist()
+    NA_list = superfunds.get("Native American Interest (NAI)").tolist()
+    NA_name_list = superfunds.get("Indian Entity (NAI Status)").tolist()
+
+    header = ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity']
+else: # different header
+    header = ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score']
 
 # find names, cities, epaids, links, scores, states, and numbers from the table on epa website
 names = driver.find_elements(By.XPATH,"//table/tbody/tr/td[1]")
@@ -69,11 +88,6 @@ scores = driver.find_elements(By.XPATH,"//table/tbody/tr/td[5]")
 states = driver.find_elements(By.XPATH,"//table/thead/tr/th/span[1]")
 number = driver.find_elements(By.XPATH,"//table/thead/tr/th/span[2]")
 
-# find EPA ID, NAI, and NAI Status from xlsx sheet
-id_list = superfunds.get("EPA ID").tolist()
-NA_list = superfunds.get("Native American Interest (NAI)").tolist()
-NA_name_list = superfunds.get("Indian Entity (NAI Status)").tolist()
-
 sites  = []
 
 # goes through all states headers harvested from website "( # sites )" and strips the number, adding text version of that state that many times into array
@@ -81,7 +95,7 @@ for i in range(len(states)):
     for p in range(int(number[i].text.replace('(','').replace(" sites )",'').replace(" site )",''))):
         sites.append(str(states[i].text))
 
-header = ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity']
+
 data = []
 
 # for every site
@@ -89,30 +103,35 @@ for i in range(len(l)):
     print("Current Header: " + str(header))
     try:
         print("Name: " + str(names[i].text))
-        
-        # initializing NAI
-        NAI_status = 'N/A'
-        NAI_entity = ''
 
-        # for each entry in the xlsx list, try to find an EPA ID match with the online table
-        # if there is a match, transfer NAI entity and status data
-        for j in range(len(id_list)):
-            if id_list[j].lower() in (epaids[i].text).lower():
-                NAI_status = NA_list[j]
-                NAI_entity = NA_name_list[j]
-                id_list.pop(j)
-                NA_list.pop(j)
-                NA_name_list.pop(j)
-                if NAI_status == 'No':
-                    NAI_entity = ''
-                break
+        # add NAI if the xlsx file exists
+        if(superexists):
+            
+            # initializing NAI
+            NAI_status = 'N/A'
+            NAI_entity = ''
 
-        print("NAI?: " + str(NAI_status))
-        print("NAI Entity: " + str(NAI_entity) + '\n')
-        
-        # create entry to populate in csv file
-        # ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity']
-        entry = [names[i].text, cities[i].text, sites[i], epaids[i].text, l[i].get_attribute('href')[-7:], scores[i].text, NAI_status, NAI_entity]
+            # for each entry in the xlsx list, try to find an EPA ID match with the online table
+            # if there is a match, transfer NAI entity and status data
+            for j in range(len(id_list)):
+                if id_list[j].lower() in (epaids[i].text).lower():
+                    NAI_status = NA_list[j]
+                    NAI_entity = NA_name_list[j]
+                    id_list.pop(j)
+                    NA_list.pop(j)
+                    NA_name_list.pop(j)
+                    if NAI_status == 'No':
+                        NAI_entity = ''
+                    break
+
+            print("NAI?: " + str(NAI_status))
+            print("NAI Entity: " + str(NAI_entity) + '\n')
+            
+            # create entry to populate in csv file
+            # ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity']
+            entry = [names[i].text, cities[i].text, sites[i], epaids[i].text, l[i].get_attribute('href')[-7:], scores[i].text, NAI_status, NAI_entity]
+        else:
+            entry = [names[i].text, cities[i].text, sites[i], epaids[i].text, l[i].get_attribute('href')[-7:], scores[i].text]
         
         # add empty values to entry corresponding to the dynamically added columns from the milestone data
         if len(entry) < len(header):
@@ -133,8 +152,12 @@ for i in range(len(l)):
             milestones.append(str(row.findAll('td')[0].contents[0]))
             dates.append(str(row.findAll('td')[1].contents[0]))
 
+
         # start after the initialized data of the entry
-        constant = 8
+        if(superexists):
+            constant = 8
+        else:
+            constant = 6
 
         # for the length of milestones in the cleanup table
         for num in range(len(milestones)):
@@ -166,7 +189,7 @@ for i in range(len(l)):
         # append new entry
         data.append(entry)
         counter += 1
-        print("Number: " + str(counter))
+        print("\nNumber: " + str(counter))
         print("Entry: " + str(entry))
     except Exception as e:
         
