@@ -21,6 +21,7 @@ import requests # pip3 install requests
 from htmldate import find_date #pip3 install htmldate, pip3 install charset_normalizer==2.0.0
 from fake_useragent import UserAgent # pip3 install fake_useragent
 import csv
+import os
 
 import pandas as pd
 
@@ -34,7 +35,7 @@ headers = {
 counter = 0
 
 # reads user given xlsx file
-superfunds = pd.read_excel('superfunds.xlsx')
+superfunds = pd.read_excel(os.path.dirname(os.path.abspath(__file__)) + '/superfunds.xlsx')
 
 # find EPA ID, NAI, and NAI Status from xlsx sheet
 id_list = superfunds.get("EPA ID").tolist()
