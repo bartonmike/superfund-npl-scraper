@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```
 After installing requirements, make sure that the XLSX file is in the same directory and named "superfunds.xlsx" before running the program <br/>
 
-## How to acquire XLSX file
+## How to download XLSX file
 Go to this page on the advanced search of superfund sites: https://cumulis.epa.gov/supercpad/cursites/srchsites.cfm <br/>
 filter for desired sites and click search at the bottom <br/>
 once the website has searched and returned results, click the link "Download Excel file containing values for all search criteria" <br/>
