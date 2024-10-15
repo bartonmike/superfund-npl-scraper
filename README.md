@@ -1,7 +1,7 @@
 # superfund-npl-scraper
 A Python scraper that can pull data related to the superfund national priority list (both current and archived) <br/>
 There are two versions of this scraper, <br/>
-  one utilizes an online table of the current superfund national priority list sites and an XLSX file containing results from a search of SNP results on the EPA site. <br/>
+  one utilizes an online table of the superfund national priority list sites and an XLSX file containing results from a search of SNP results on the EPA site. <br/>
   Another only uses the XLSX file of SNP results on the EPA Site
 
 ## What It Does
@@ -35,7 +35,7 @@ This program creates the CSV file completely based on the XLSX file, it also has
 Unlike the Site/XLSX version, it does not need an additional website to run, but this means that a new XLSX file needs to be downloaded to create a new updated CSV file.
 
 ## Running the program
-make sure that the program (superfund.py) and the XLSX file (superfunds.xlsx) <br/>
+make sure that the program (superfund.py) and the XLSX file (superfunds.xlsx) are in the same directory <br/>
 go to the same directory as the program in the command line <br/>
 run the program by typing in this command <br/>
 ```
