@@ -11,7 +11,7 @@ After the program is finished, it creates a CSV (excel/sheets) file named "super
 
 ## Program Requirements
 All Python requirements for the program are contained in the requirements.txt file <br/>
-before running the program type this command and press enter into the command line: <br/>
+before running the program, CD into the directory of the program, type this command and press enter into the command line: <br/>
 ```
 pip install -r requirements.txt
 ```
