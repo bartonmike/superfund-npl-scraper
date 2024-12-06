@@ -4,3 +4,6 @@ htmldate
 charset_normalizer ==2.0.0
 fake_useragent
 selenium
+lxml[html_clean]
+pandas
+openpyxl
