@@ -200,17 +200,12 @@ for i in range(len(l)):
             print(message)
             data.append(entry + ["can't find table"])
             counter += 1
-        else: # if other error, then stop and create csv
-            print(str(e))
-            # creating csv file, adding the headers and all the data/articles
-            print("----Writing CSV......")
-            with open("superfund.csv", 'w', encoding="utf-8") as file:
-                csvwriter = csv.writer(file) # 2. create a csvwriter object
-                csvwriter.writerow(header) # 4. write the header
-                csvwriter.writerows(data) # 5. write the rest of the data
-            print("Done")
-            driver.close()
-            exit()
+        else: # if other error, then append entry and continue with program
+            message = entry + ["error making entry"]
+            print("Number: " + str(counter))
+            print(message)
+            data.append(entry + ["error making entry"])
+            counter += 1
 
 # creating csv file, adding the headers and all the data/articles
 print("----Writing CSV......")
