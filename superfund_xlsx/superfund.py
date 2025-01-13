@@ -132,7 +132,7 @@ for i in range(l):
             print(message)
             data.append(entry + ["can't find table"])
             counter += 1
-        else:# if other error, then stop and create csv
+        else:# if other error, then append error and continue with program
             message = entry + ["error making entry"]
             print("Number: " + str(counter))
             print(message)
