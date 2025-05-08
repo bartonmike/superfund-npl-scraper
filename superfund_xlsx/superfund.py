@@ -49,7 +49,7 @@ states = superfunds.get("State").tolist()
 links = superfunds.get("Superfund Site Profile Page URL").tolist()
 status = superfunds.get("NPL Status").tolist()
 
-header = ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity', 'NPL Status']
+header = ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity', 'NPL Status', 'Community Advisory Group?']
 data = []
 
 # for every site
@@ -73,6 +73,15 @@ for i in range(l):
         # using search id, go to cleanup progress
         p = requests.get('https://cumulis.epa.gov/supercpad/SiteProfiles/index.cfm?fuseaction=second.schedule&id=' + link, headers=headers)
         soup = BeautifulSoup(p.text, features = "html.parser")
+
+        # using search id, go to Stady Updated, Get Involved
+        pl = requests.get('https://cumulis.epa.gov/supercpad/SiteProfiles/index.cfm?fuseaction=second.Stayup&id=' + link, headers=headers)
+        soupl = BeautifulSoup(pl.text, features = "html.parser")
+
+        if "Community Advisory Group" in str(soupl):
+            advisory = "Yes"
+        else:
+            advisory = "No"
         
         # get table from cleanup progress, get all milestones and dates
         for row in soup.findAll('table')[0].tbody.findAll('tr'):
@@ -81,7 +90,7 @@ for i in range(l):
 
         # create entry to populate in csv file
         # ['Site Name','City', 'State', 'EPA ID', 'Search ID', 'Score', 'NAI', 'NAI Entity', 'NPL Status']
-        entry = [names[i], cities[i], states[i], id_list[i], p.url[-7:], scores[i], NA_list[i], NA_name_list[i], status[i]]
+        entry = [names[i], cities[i], states[i], id_list[i], p.url[-7:], scores[i], NA_list[i], NA_name_list[i], status[i], advisory]
         
         # add empty values to entry corresponding to the dynamically added columns from the milestone data
         if len(entry) < len(header):
@@ -89,7 +98,7 @@ for i in range(l):
                 entry.append('')
 
         # start after the initialized data of the entry
-        constant = 9
+        constant = 10
 
         # for the length of milestones in the cleanup table
         for num in range(len(milestones)):
@@ -132,12 +141,18 @@ for i in range(l):
             print(message)
             data.append(entry + ["can't find table"])
             counter += 1
-        else:# if other error, then append error and continue with program
-            message = entry + ["error making entry"]
-            print("Number: " + str(counter))
-            print(message)
-            data.append(entry + ["error making entry"])
-            counter += 1
+        else:# if other error, then stop and create csv
+            print(str(e))
+
+            data.append([names[i], cities[i], states[i], id_list[i], '', scores[i], NA_list[i], NA_name_list[i], status[i], ''] + ["can't find table"])
+            # creating csv file, adding the headers and all the data/articles
+            # print("----Writing CSV......")
+            # with open("superfund_xlsx.csv", 'w', encoding="utf-8") as file:
+            #     csvwriter = csv.writer(file) # 2. create a csvwriter object
+            #     csvwriter.writerow(header) # 4. write the header
+            #     csvwriter.writerows(data) # 5. write the rest of the data
+            # print("Done")
+            # exit()
 
 # creating csv file, adding the headers and all the data/articles
 print("----Writing CSV......")
